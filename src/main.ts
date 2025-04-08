@@ -1,22 +1,26 @@
-// src/main.ts
+// backend/src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const config = new DocumentBuilder()
-    .setTitle('Fintech API')
-    .setDescription('API for a simple fintech application')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
 
+  // Enable CORS
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  });
+
+  // Enable global validation pipe
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(3000);
+
+  // Set global prefix for API routes
+  app.setGlobalPrefix('api');
+
+  const port = process.env.PORT || 5001;
+  await app.listen(port);
+  console.log(`Server running on port ${port}`);
 }
 bootstrap();
